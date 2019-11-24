@@ -17,5 +17,8 @@ full_time = datetime.datetime.strftime(datetime.datetime.today(), '%D %H:%M')
 
 if last_hour != current_hour:
     import weather_thing
+    with open('cron_ran.csv', 'a') as f2:
+        csv_writer = csv.writer(f2)
+        csv_writer.writerow([full_time])
 else:
     pass
