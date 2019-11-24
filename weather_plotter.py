@@ -99,7 +99,7 @@ def plotweather(file_name):
     p.line(date_conv, fcst_temp_data, legend_label='Forecast Temp.', line_width=3,
            line_color='gray')
     p.circle(date_conv, here_temp_data, legend_label='Garage Temp.', line_width=2,
-             fill_color='white', line_color='tomoato', size=1)
+             fill_color='white', line_color='tomato', size=1)
 
     save(p, 'weather_data.html')
 
