@@ -4,7 +4,6 @@ import csv
 import datetime
 from bokeh.plotting import figure, output_file, save
 import time
-import math
 
 
 def plotweather(file_name):
@@ -95,13 +94,14 @@ def plotweather(file_name):
     #          fill_color='white', line_color='brown', size=6)
 
     p.circle(date_conv, now_temp_data, legend_label="Reported Temp.", line_width=2,
-             fill_color='white', line_color='skyblue', size=1)
+             fill_color='white', line_color='skyblue', size=3)
     p.line(date_conv, fcst_temp_data, legend_label='Forecast Temp.', line_width=3,
            line_color='gray')
     p.circle(date_conv, here_temp_data, legend_label='Garage Temp.', line_width=2,
-             fill_color='white', line_color='tomato', size=1)
+             fill_color='white', line_color='tomato', size=3)
 
     save(p, 'weather_data.html')
 
 
-# plotweather('data_weather_thing.csv')
+if __name__ == '__main__':
+    plotweather('data_weather_thing.csv')
