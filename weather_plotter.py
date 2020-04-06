@@ -15,41 +15,47 @@ def plotweather(file_name):
         csv_data = list(csv_reader)
 
     # Convert data from CSV file into lists
-    year_data = []
-    month_data = []
-    day_data = []
-    hour_data = []
+    fcst_date_0_data = []
+    # year_data = []
+    # month_data = []
+    # day_data = []
+    # hour_data = []
     now_temp_data = []
-    fcst_temp_data = []
+    fcst_temp_0_data = []
     now_icon_data = []
-    fcst_icon_data = []
-    here_temp_data = []
+    fcst_icon_0_data = []
+    # here_temp_data = []
+    fcst_temp_3_data = []
+    fcst_date_3_data = []
 
     for line in csv_data:
-        year_data.append(int(line['year']))
-        month_data.append(int(line['month']))
-        day_data.append(int(line['day']))
-        hour_data.append(int(line['hour']))
+        # year_data.append(int(line['year']))
+        # month_data.append(int(line['month']))
+        # day_data.append(int(line['day']))
+        # hour_data.append(int(line['hour']))
+        fcst_date_0_data.append(line['fcst_date_0'])
         now_temp_data.append(float(line['now_temp']))
-        fcst_temp_data.append(float(line['fcst_temp']))
+        fcst_temp_0_data.append(float(line['fcst_temp_0']))
         now_icon_data.append(line['now_icon'])
-        fcst_icon_data.append(line['fcst_icon'])
-        here_temp_data.append(line['here_temp'])
+        fcst_icon_0_data.append(line['fcst_icon_0'])
+        # here_temp_data.append(line['here_temp'])
+        fcst_temp_3_data.append(line['fcst_temp_3'])
+        fcst_date_3_data.append(line['fcst_date_3'])
+
 
     # Remove forecast data from midnight to disconnect line on Bokeh plot each day
-    for foo in range(len(hour_data)):
-        # print(hour_data[foo])
-        if hour_data[foo] == 0:
-            fcst_temp_data[foo] = float('nan')
+    for _ in fcst_date_0_data:
+        # print(fcst_date_0_data[foo])
+        if _ == 0:
+            fcst_temp_0_data[_] = float('nan')
 
     # Convert data lists into preferred format for plotting
     date_conv = []
     day_str = []
     hour_str = []
 
-    for hour in range(len(year_data)):
-        date_time = datetime.datetime(year_data[hour], month_data[hour],
-                                      day_data[hour], hour_data[hour])
+    for hour in fcst_date_0_data:
+        date_time = datetime.datetime.strptime(hour, '%Y-%m-%d %H:%M:%S')
         day_string = date_time.strftime('%m/%d/%Y')
         hour_string = date_time.strftime('%H:%M')
         day_str.append(day_string)
@@ -95,10 +101,10 @@ def plotweather(file_name):
 
     p.circle(date_conv, now_temp_data, legend_label="Reported Temp.", line_width=2,
              fill_color='white', line_color='skyblue', size=4)
-    p.line(date_conv, fcst_temp_data, legend_label='Forecast Temp.', line_width=3,
+    p.line(date_conv, fcst_temp_0_data, legend_label='Forecast Temp.', line_width=3,
            line_color='gray')
-    p.circle(date_conv, here_temp_data, legend_label='Garage Temp.', line_width=2,
-             fill_color='white', line_color='tomato', size=4)
+    # p.circle(date_conv, here_temp_data, legend_label='Garage Temp.', line_width=2,
+    #          fill_color='white', line_color='tomato', size=4)
 
     save(p, 'weather_data.html')
 
