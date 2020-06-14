@@ -5,7 +5,6 @@ import csv
 import time
 import os.path
 import weather_plotter as plt
-import get_temp_data
 
 API_KEY = '117eeede0b36be4e9adee42396747ac7'
 
@@ -15,9 +14,7 @@ latitude = 47.209660
 longitude = -122.425690
 fcst = darksky.get_forecast(latitude, longitude)
 
-here_humi, here_temp = get_temp_data.get_data()
 
-here_temp = here_temp*9/5+32
 
 line = {
     'now_temp':     fcst.currently.apparent_temperature,
@@ -30,8 +27,6 @@ line = {
     'hour':         time.strftime('%H'),
     'minute':       time.strftime('%M'),
     'second':       time.strftime('%S'),
-    'here_temp':    here_temp,
-    'here_humi':    here_humi,
     'now_humi':     fcst.currently.humidity
 }
 
@@ -41,7 +36,7 @@ file_exists = os.path.isfile(file_name)
 
 with open(file_name, 'a') as f:
     fieldnames = ['year', 'month', 'day', 'hour', 'minute', 'second', 'now_temp',
-                  'fcst_temp', 'now_icon', 'fcst_icon', 'here_temp', 'here_humi', 'now_humi']
+                  'fcst_temp', 'now_icon', 'fcst_icon', 'now_humi']
     csv_writer = csv.DictWriter(f, fieldnames=fieldnames)
     if not file_exists:
         csv_writer.writeheader()

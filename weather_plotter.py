@@ -23,7 +23,6 @@ def plotweather(file_name):
     fcst_temp_data = []
     now_icon_data = []
     fcst_icon_data = []
-    here_temp_data = []
 
     for line in csv_data:
         year_data.append(int(line['year']))
@@ -34,13 +33,57 @@ def plotweather(file_name):
         fcst_temp_data.append(float(line['fcst_temp']))
         now_icon_data.append(line['now_icon'])
         fcst_icon_data.append(line['fcst_icon'])
-        here_temp_data.append(line['here_temp'])
 
     # Remove forecast data from midnight to disconnect line on Bokeh plot each day
-    for foo in range(len(hour_data)):
-        # print(hour_data[foo])
-        if hour_data[foo] == 0:
-            fcst_temp_data[foo] = float('nan')
+    for _ in range(len(hour_data)):
+        # print(hour_data[_])
+        if hour_data[_] == 0:
+            fcst_temp_data[_] = float('nan')
+
+    file_name = "3_day_fcst.csv"
+
+    with open(file_name, 'r') as f:
+        csv_reader = csv.DictReader(f)
+        csv_data = list(csv_reader)
+
+    fcst_high_days = []
+    fcst_low_days = []
+    fcst_high_data = []
+    fcst_low_data = []
+
+    for line in csv_data:
+        split_date = [int(e) if e.isdigit() else e for e in line["fcst_date"].split('-')]
+        fcst_high_days.append(split_date)
+        fcst_low_days.append(split_date)
+        fcst_high_data.append(int(line["high"]))
+        fcst_low_data.append(int(line["low"]))
+
+    fcst_high_interval = []
+    fcst_low_interval = []
+    hourly_high_data = []
+    hourly_low_data = []
+
+    for day in fcst_high_data:
+        for _ in range(0,3):
+            hourly_high_data.append(day)
+
+    for day in fcst_low_data:
+        for _ in range(0,3):
+            hourly_low_data.append(day)
+
+    for day in fcst_high_days:
+        fcst_high_interval.append(
+            time.mktime(datetime.datetime(day[0], day[1], day[2], 1).timetuple()))
+        fcst_high_interval.append(
+            time.mktime(datetime.datetime(day[0], day[1], day[2], 22, 59, 59).timetuple()))
+        fcst_high_interval.append(float("nan"))
+
+    for day in fcst_low_days:
+        fcst_low_interval.append(
+            time.mktime(datetime.datetime(day[0], day[1], day[2], 1).timetuple()) + 43200)
+        fcst_low_interval.append(
+            time.mktime(datetime.datetime(day[0], day[1], day[2], 22, 59, 59).timetuple()) + 43200)
+        fcst_low_interval.append(float("nan"))
 
     # Convert data lists into preferred format for plotting
     date_conv = []
@@ -94,11 +137,15 @@ def plotweather(file_name):
     p.ygrid.ticker = y_grids
 
     p.circle(date_conv, now_temp_data, legend_label="Reported Temp.", line_width=2,
-             fill_color='white', line_color='skyblue', size=4)
-    p.line(date_conv, fcst_temp_data, legend_label='Forecast Temp.', line_width=3,
-           line_color='gray')
-    p.circle(date_conv, here_temp_data, legend_label='Garage Temp.', line_width=2,
-             fill_color='white', line_color='tomato', size=4)
+             fill_color='white', line_color='gray', size=4)
+    # p.line(date_conv, fcst_temp_data, legend_label='Forecast Temp.', line_width=3,
+    #        line_color='gray')
+    # p.step(hourly_fcst_interval, hourly_fcst_data, line_width=3, line_color="#cab2d6",
+    #        legend_label="3 Day Forecast", mode="after")
+    p.line(fcst_high_interval, hourly_high_data, line_width=3, line_color="orange",
+           legend_label="3 Day High")
+    p.line(fcst_low_interval, hourly_low_data, line_width=3, line_color="skyblue",
+           legend_label="3 Day Low")
 
     save(p, 'weather_data.html')
 
