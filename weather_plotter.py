@@ -3,7 +3,7 @@
 import csv
 import datetime
 from bokeh.plotting import figure, output_file, save
-from bokeh.models import tickers
+from bokeh.models import ColumnDataSource, LabelSet
 import time
 
 
@@ -24,7 +24,7 @@ def plotweather(file_name):
     now_icon_data = []
     fcst_icon_data = []
 
-    for line in csv_data:
+    for line in csv_data[-(24*30)::]:
         year_data.append(int(line['year']))
         month_data.append(int(line['month']))
         day_data.append(int(line['day']))
@@ -50,18 +50,21 @@ def plotweather(file_name):
     fcst_low_days = []
     fcst_high_data = []
     fcst_low_data = []
+    fcst_day_detail = []
 
-    for line in csv_data:
+    for line in csv_data[-33::]:
         split_date = [int(e) if e.isdigit() else e for e in line["fcst_date"].split('-')]
         fcst_high_days.append(split_date)
         fcst_low_days.append(split_date)
         fcst_high_data.append(int(line["high"]))
         fcst_low_data.append(int(line["low"]))
+        fcst_day_detail.append(line["day_detail"])
 
     fcst_high_interval = []
     fcst_low_interval = []
     hourly_high_data = []
     hourly_low_data = []
+    fcst_detail_interval = []
 
     for day in fcst_high_data:
         for _ in range(0,3):
@@ -77,6 +80,7 @@ def plotweather(file_name):
         fcst_high_interval.append(
             time.mktime(datetime.datetime(day[0], day[1], day[2], 22, 59, 59).timetuple()))
         fcst_high_interval.append(float("nan"))
+        fcst_detail_interval.append(time.mktime(datetime.datetime(day[0], day[1], day[2], 1).timetuple()))
 
     for day in fcst_low_days:
         fcst_low_interval.append(
@@ -126,6 +130,11 @@ def plotweather(file_name):
 
     x_labels = dict(zip(x_label_key, x_label_val))
 
+    source = ColumnDataSource(data=dict(interval=[fcst_detail_interval],data=[fcst_high_data],detail=[fcst_day_detail]))
+
+    day_labels = LabelSet(x="interval", y="data", text="detail", level="glyph",
+                          x_offset=0, y_offset=0, source=source, render_mode="canvas")
+
     # Plot properties
     p.yaxis.ticker = y_grids
     p.xaxis.ticker = x_label_key
@@ -138,14 +147,12 @@ def plotweather(file_name):
 
     p.circle(date_conv, now_temp_data, legend_label="Reported Temp.", line_width=2,
              fill_color='white', line_color='gray', size=4)
-    # p.line(date_conv, fcst_temp_data, legend_label='Forecast Temp.', line_width=3,
-    #        line_color='gray')
-    # p.step(hourly_fcst_interval, hourly_fcst_data, line_width=3, line_color="#cab2d6",
-    #        legend_label="3 Day Forecast", mode="after")
     p.line(fcst_high_interval, hourly_high_data, line_width=3, line_color="orange",
            legend_label="3 Day High")
     p.line(fcst_low_interval, hourly_low_data, line_width=3, line_color="skyblue",
            legend_label="3 Day Low")
+    p.add_layout(day_labels)
+    p.scatter(x="interval", y="data", source=source, size=8)
 
     save(p, 'weather_data.html')
 
